@@ -1,1 +1,1 @@
-### autoDeploy
+### auto deploy
