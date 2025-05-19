@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Random Button Selector</title>
+  <style>
+    body {
+      background-color: #eaeaea;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: auto repeat(4, 70px) 120px;
+      grid-gap: 10px;
+      align-items: center;
+      width: fit-content;
+      padding: 20px;
+      border: 3px solid #ccc;
+      border-radius: 10px;
+      background-color: white;
+    }
+
+    .room-label {
+      width: 100px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      border: 2px solid #ccc;
+      cursor: default;
+      color: rgb(0, 0, 0);
+    }
+
+    .room1-label { background-color: rgb(160, 0, 246); }  /* ม่วง */
+    .room2-label { background-color: rgb(0, 200, 255); }  /* ฟ้า */
+    .room3-label { background-color: rgb(0, 200, 100); }  /* เขียว */
+    .room4-label { background-color: rgb(255, 150, 0); }  /* ส้ม */
+
+    button.option {
+      width: 70px;
+      height: 50px;
+      background-color: lightgreen;
+      font-size: 18px;
+      font-weight: bold;
+      border: 2px solid #ccc;
+      cursor: pointer;
+      color: black;
+      transition: background-color 0.3s, color 0.3s, border 0.3s;
+    }
+
+    button.option.border-highlight {
+      border: 4px solid blue;
+      background-color: #004a99;  /* น้ำเงินเข้ม */
+      color: white;
+    }
+
+    button.option.border-final {
+      border: 4px solid red;
+      background-color: #cc0000;  /* แดงเข้ม */
+      color: white;
+    }
+
+    .control-button {
+      width: 100%;
+      height: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      color: black;
+      border: 2px solid #ccc;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .random { background-color: #4c71ed; color: black; }
+    .save   { background-color: #00ff00; color: black; }
+    .reset  { background-color: #ff00ff; color: black; }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="grid"></div>
+
+  <audio id="tick" src="tick.wav"></audio>
+
+  <script>
+    const groupLabels = ['ROOM 1', 'ROOM 2', 'ROOM 3', 'ROOM 4'];
+    const groups = {
+      group1: ['A', 'B', 'C', 'D'],
+      group2: ['E', 'F', 'G'],
+      group3: ['H', 'I', 'J'],
+      group4: ['K', 'L', 'M']
+    };
+
+    const selectedButtons = new Set();
+    const groupElements = {};
+    const tickSound = document.getElementById("tick");
+
+    function createUI() {
+      const grid = document.getElementById("grid");
+      let row = 0;
+
+      for (const [key, values] of Object.entries(groups)) {
+        const label = document.createElement("div");
+        label.textContent = groupLabels[row];
+        label.className = `room-label room${row + 1}-label`;
+        grid.appendChild(label);
+
+        groupElements[key] = [];
+
+        values.forEach(letter => {
+          const btn = document.createElement("button");
+          btn.textContent = letter;
+          btn.className = "option";
+          btn.id = `${key}-${letter}`;
+          groupElements[key].push(btn);
+          grid.appendChild(btn);
+        });
+
+        for (let i = values.length; i < 4; i++) {
+          const dummy = document.createElement("div");
+          grid.appendChild(dummy);
+        }
+
+        if (row === 0) {
+          const randomBtn = document.createElement("button");
+          randomBtn.textContent = "RANDOM";
+          randomBtn.className = "control-button random";
+          randomBtn.onclick = startRandom;
+          grid.appendChild(randomBtn);
+        } else if (row === 1) {
+          const saveBtn = document.createElement("button");
+          saveBtn.textContent = "SAVE";
+          saveBtn.className = "control-button save";
+          saveBtn.onclick = saveGroups;
+          grid.appendChild(saveBtn);
+        } else if (row === 2) {
+          const resetBtn = document.createElement("button");
+          resetBtn.textContent = "RESET";
+          resetBtn.className = "control-button reset";
+          resetBtn.onclick = reset;
+          grid.appendChild(resetBtn);
+        } else {
+          grid.appendChild(document.createElement("div"));
+        }
+
+        row++;
+      }
+    }
+
+    function getRandom(arr, count) {
+      const copy = [...arr];
+      const result = [];
+      while (result.length < count && copy.length) {
+        const idx = Math.floor(Math.random() * copy.length);
+        result.push(copy[idx]);
+        copy.splice(idx, 1);
+      }
+      return result;
+    }
+
+    async function startRandom() {
+      clearAllBorders();
+      selectedButtons.clear();
+
+      const targets = {};
+      for (const [group, btns] of Object.entries(groupElements)) {
+        targets[group] = getRandom(btns, 2);
+        targets[group].forEach(btn => selectedButtons.add(btn));
+      }
+
+      const indexes = { group1: 0, group2: 0, group3: 0, group4: 0 };
+      const start = Date.now();
+
+      while (Date.now() - start < 5000) {
+        clearAllBorders();
+
+        for (const group in groupElements) {
+          const btns = groupElements[group];
+          const idx = indexes[group];
+          btns[idx].classList.add('border-highlight');
+          indexes[group] = (idx + 1) % btns.length;
+        }
+
+        tickSound.currentTime = 0;
+        tickSound.play();
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      clearAllBorders();
+      selectedButtons.forEach(btn => btn.classList.add("border-final"));
+    }
+
+    function clearAllBorders() {
+      document.querySelectorAll(".option").forEach(btn => {
+        btn.classList.remove("border-highlight", "border-final");
+        btn.style.backgroundColor = "";
+        btn.style.color = "";
+      });
+    }
+
+    function saveGroups() {
+      if (selectedButtons.size === 0) {
+        alert("ยังไม่มีข้อมูลสุ่ม กรุณากดปุ่มสุ่มก่อน");
+        return;
+      }
+
+      for (const [group, btns] of Object.entries(groupElements)) {
+        const names = btns
+          .filter(btn => selectedButtons.has(btn))
+          .map(btn => btn.textContent);
+        downloadFile(`${group}.txt`, names.join(" , "));
+      }
+    }
+
+    function downloadFile(filename, content) {
+      const blob = new Blob([content], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    }
+
+    function reset() {
+      clearAllBorders();
+      selectedButtons.clear();
+    }
+
+    createUI();
+  </script>
+</body>
+</html>
