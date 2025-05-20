@@ -5,26 +5,50 @@
   <title>Random Button Selector</title>
   <style>
     body {
-      background-color: #ecbcbc;
-      font-family: sans-serif;
+      background: linear-gradient(to right, #fbecec, #e0f7fa);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 20px;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       min-height: 100vh;
+      flex-direction: column;
+      gap: 20px;
     }
 
+    /* container สำหรับรูป 3 รูป ให้เรียงแถวเดียว */
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto;
+}
+
+    .logo-container img {
+      max-height: 100px;
+      width: auto;
+    }
+
+    /* container grid ปุ่มและ label เหมือนเดิม */
     .container {
       display: grid;
-      grid-template-columns: auto repeat(4, 70px) 120px;
-      grid-gap: 10px;
+      grid-template-columns: auto repeat(4, 80px) 140px;
+      gap: 12px;
       align-items: center;
-      width: fit-content;
-      padding: 20px;
-      border: 3px solid #ccc;
-      border-radius: 10px;
-      background-color: white;
+      padding: 30px;
+      border-radius: 16px;
+      background-color: #fdfdfd;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     .room-label {
@@ -33,60 +57,80 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
-      border: 2px solid #ccc;
-      cursor: default;
-      color: rgb(0, 0, 0);
+      border-radius: 10px;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
-    .room1-label { background-color: rgb(237, 20, 208); }  /* ม่วง */
-    .room2-label { background-color: rgb(0, 200, 255); }  /* ฟ้า */
-    .room3-label { background-color: rgb(0, 200, 100); }  /* เขียว */
-    .room4-label { background-color: rgb(255, 150, 0); }  /* ส้ม */
+    .room1-label { background-color: #d946ef; }
+    .room2-label { background-color: #38bdf8; }
+    .room3-label { background-color: #34d399; }
+    .room4-label { background-color: #fb923c; }
 
     button.option {
-      width: 70px;
+      width: 80px;
       height: 50px;
-      background-color: lightgreen;
+      background-color: #d1fae5;
       font-size: 18px;
       font-weight: bold;
-      border: 2px solid #ccc;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
-      color: black;
-      transition: background-color 0.3s, color 0.3s, border 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    button.option:hover {
+      background-color: #a7f3d0;
+      transform: scale(1.05);
     }
 
     button.option.border-highlight {
-      border: 4px solid blue;
-      background-color: #004a99;  /* น้ำเงินเข้ม */
+      border: 3px solid #2563eb;
+      background-color: #1e40af;
       color: white;
     }
 
     button.option.border-final {
-      border: 4px solid red;
-      background-color: #cc0000;  /* แดงเข้ม */
+      border: 3px solid #dc2626;
+      background-color: #b91c1c;
       color: white;
     }
 
     .control-button {
       width: 100%;
       height: 50px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
-      color: black;
-      border: 2px solid #ccc;
-      margin-bottom: 10px;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      transition: background-color 0.3s;
       cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .random { background-color: #4c71ed; color: black; }
-    .save   { background-color: #00ff00; color: black; }
-    .reset  { background-color: #ff00ff; color: black; }
+    .control-button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .random { background-color: #4f46e5; }
+    .save   { background-color: #10b981; }
+    .reset  { background-color: #ec4899; }
   </style>
 </head>
 <body>
+  <!-- container รูป 3 รูป เรียงในแถวเดียว -->
+  <div class="logo-container">
+    <img src="Logo_vocational.png" alt="Logo 1" />
+    <img src="agvai.png" alt="Logo 2" />
+    <img src="robotcontest.png" alt="Logo 3" />
+  </div>
 
+  <!-- container grid ปุ่มและ label แบบเดิม -->
   <div class="container" id="grid"></div>
 
   <audio id="tick" src="tick.wav"></audio>
@@ -130,28 +174,26 @@
           grid.appendChild(dummy);
         }
 
+        const controlBtn = document.createElement("button");
         if (row === 0) {
-          const randomBtn = document.createElement("button");
-          randomBtn.textContent = "RANDOM";
-          randomBtn.className = "control-button random";
-          randomBtn.onclick = startRandom;
-          grid.appendChild(randomBtn);
+          controlBtn.textContent = "RANDOM";
+          controlBtn.className = "control-button random";
+          controlBtn.onclick = startRandom;
         } else if (row === 1) {
-          const saveBtn = document.createElement("button");
-          saveBtn.textContent = "SAVE";
-          saveBtn.className = "control-button save";
-          saveBtn.onclick = saveGroups;
-          grid.appendChild(saveBtn);
+          controlBtn.textContent = "SAVE";
+          controlBtn.className = "control-button save";
+          controlBtn.onclick = saveGroups;
         } else if (row === 2) {
-          const resetBtn = document.createElement("button");
-          resetBtn.textContent = "RESET";
-          resetBtn.className = "control-button reset";
-          resetBtn.onclick = reset;
-          grid.appendChild(resetBtn);
+          controlBtn.textContent = "RESET";
+          controlBtn.className = "control-button reset";
+          controlBtn.onclick = reset;
         } else {
           grid.appendChild(document.createElement("div"));
+          row++;
+          continue;
         }
 
+        grid.appendChild(controlBtn);
         row++;
       }
     }
@@ -182,7 +224,6 @@
 
       while (Date.now() - start < 5000) {
         clearAllBorders();
-
         for (const group in groupElements) {
           const btns = groupElements[group];
           const idx = indexes[group];
@@ -202,8 +243,6 @@
     function clearAllBorders() {
       document.querySelectorAll(".option").forEach(btn => {
         btn.classList.remove("border-highlight", "border-final");
-        btn.style.backgroundColor = "";
-        btn.style.color = "";
       });
     }
 
