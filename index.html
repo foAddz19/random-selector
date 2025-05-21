@@ -5,90 +5,104 @@
   <title>Random Button Selector</title>
   <style>
     body {
+      background: linear-gradient(to right,  #b9ecf3,#f0aaaa );
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 40px 20px;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #f9fafb, #e0f2fe);
+      padding: 20px;
       display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
       flex-direction: column;
-      align-items: center;
-      gap: 30px;
+      gap: 20px;
+      position: relative;
+      z-index: 0;
+    }
+
+    /* พื้นหลังรูปหุ่นยนต์จางๆ */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('Pngtree.jpg') center center / cover no-repeat;
+      opacity: 0.15;
+      z-index: -1;
     }
 
     .logo-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 40px;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(10px);
+      gap: 30px;
+      padding: 20px;
+      background-color: #ffffff;
       border-radius: 20px;
-      padding: 20px 40px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto;
     }
 
     .logo-container img {
-      max-height: 80px;
+      max-height: 100px;
       width: auto;
-      transition: transform 0.3s ease;
-    }
-
-    .logo-container img:hover {
-      transform: scale(1.1);
     }
 
     .container {
       display: grid;
-      grid-template-columns: 100px repeat(4, 80px) 140px;
-      gap: 16px;
+      grid-template-columns: auto repeat(4, 80px) 140px;
+      gap: 12px;
       align-items: center;
-      background: white;
       padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-      max-width: 900px;
-      width: 100%;
+      border-radius: 16px;
+      background-color: #fdfdfd;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     .room-label {
+      width: 100px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 600;
       font-size: 16px;
-      color: #ffffff;
-      border-radius: 12px;
-      height: 50px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+      font-weight: bold;
+      border-radius: 10px;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
-    .room1-label { background: #ef4444; }
-    .room2-label { background: #3b82f6; }
-    .room3-label { background: #10b981; }
-    .room4-label { background: #f97316; }
+    .room1-label { background-color: #f28e8e; }
+    .room2-label { background-color: #38bdf8; }
+    .room3-label { background-color: #34d399; }
+    .room4-label { background-color: #fb923c; }
 
     button.option {
       width: 80px;
       height: 50px;
+      background-color: #b9ccc2;
+      font-size: 18px;
+      font-weight: bold;
       border: none;
       border-radius: 10px;
-      background: #e2e8f0;
-      font-weight: bold;
-      font-size: 18px;
-      color: #1f2937;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
     button.option:hover {
-      background: #cbd5e1;
-      transform: translateY(-2px);
+      background-color: #d0f7e4;
+      transform: scale(1.05);
     }
 
     button.option.border-highlight {
       border: 3px solid #2563eb;
-      background-color: #1d4ed8;
+      background-color: #1e40af;
       color: white;
     }
 
@@ -99,25 +113,26 @@
     }
 
     .control-button {
+      width: 100%;
       height: 50px;
-      border: none;
-      border-radius: 12px;
-      font-weight: bold;
       font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
       color: white;
+      transition: background-color 0.3s;
       cursor: pointer;
-      transition: 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
     .control-button:hover {
+      opacity: 0.9;
       transform: translateY(-2px);
-      opacity: 0.95;
     }
 
-    .random { background-color: #6366f1; }
+    .random { background-color: #4f46e5; }
     .save   { background-color: #10b981; }
-    .reset  { background-color: #f43f5e; }
+    .reset  { background-color: #ec4899; }
   </style>
 </head>
 <body>
@@ -132,7 +147,6 @@
   <audio id="tick" src="tick.wav"></audio>
 
   <script>
-    // Code JavaScript เหมือนเดิมตามที่คุณให้มา
     const groupLabels = ['ROOM 1', 'ROOM 2', 'ROOM 3', 'ROOM 4'];
     const groups = {
       group1: ['A', 'B', 'C', 'D'],
