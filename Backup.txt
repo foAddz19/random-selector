@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Random Button Selector</title>
+  <style>
+    body {
+      background: linear-gradient(to right,  #b9ecf3,#f0aaaa );
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      z-index: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('Pngtree.jpg') center center / cover no-repeat;
+      opacity: 0.15;
+      z-index: -1;
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+
+    .logo-container img {
+      max-height: 100px;
+      width: auto;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: auto repeat(4, 80px) 140px;
+      gap: 12px;
+      align-items: center;
+      padding: 30px;
+      border-radius: 16px;
+      background-color: #fdfdfd;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .room-label {
+      width: 100px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 10px;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .room1-label { background-color: #f08f8f; }
+    .room2-label { background-color: #32a0cf; }
+    .room3-label { background-color: #3ad89e; }
+    .room4-label { background-color: #f29040; }
+
+    button.option {
+      width: 80px;
+      height: 50px;
+      background-color: #b9ccc2;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    button.option:hover {
+      background-color: #d0f7e4;
+      transform: scale(1.05);
+    }
+
+    button.option.border-highlight {
+      border: 3px solid #2563eb;
+      background-color: #1e40af;
+      color: white;
+    }
+
+    button.option.border-final {
+      border: 3px solid #dc2626;
+      background-color: #b91c1c;
+      color: white;
+    }
+
+    .control-button {
+      width: 100%;
+      height: 50px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      transition: background-color 0.3s;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .control-button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .random { background-color: #4f46e5; }
+    .save   { background-color: #10b981; }
+    .reset  { background-color: #ec4899; }
+
+    footer {
+      text-align: center;
+      width: 100%;
+      margin-top: 40px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <img src="Logo_vocational.png" alt="Logo 1" />
+    <img src="agvai.png" alt="Logo 2" />
+    <img src="robotcontest.png" alt="Logo 3" />
+  </div>
+
+  <div class="container" id="grid"></div>
+
+  <audio id="tick" src="tick.wav"></audio>
+
+  <script>
+    const groupLabels = ['ROOM 1', 'ROOM 2', 'ROOM 3', 'ROOM 4'];
+    const groups = {
+      group1: ['A', 'B', 'C', 'D'],
+      group2: ['E', 'F', 'G'],
+      group3: ['H', 'I', 'J'],
+      group4: ['K', 'L', 'M']
+    };
+
+    const selectedButtons = new Set();
+    const groupElements = {};
+    const tickSound = document.getElementById("tick");
+
+    function createUI() {
+      const grid = document.getElementById("grid");
+      let row = 0;
+
+      for (const [key, values] of Object.entries(groups)) {
+        const label = document.createElement("div");
+        label.textContent = groupLabels[row];
+        label.className = `room-label room${row + 1}-label`;
+        grid.appendChild(label);
+
+        groupElements[key] = [];
+
+        values.forEach(letter => {
+          const btn = document.createElement("button");
+          btn.textContent = letter;
+          btn.className = "option";
+          btn.id = `${key}-${letter}`;
+          groupElements[key].push(btn);
+          grid.appendChild(btn);
+        });
+
+        for (let i = values.length; i < 4; i++) {
+          const dummy = document.createElement("div");
+          grid.appendChild(dummy);
+        }
+
+        const controlBtn = document.createElement("button");
+        if (row === 0) {
+          controlBtn.textContent = "RANDOM";
+          controlBtn.className = "control-button random";
+          controlBtn.onclick = startRandom;
+        } else if (row === 1) {
+          controlBtn.textContent = "SAVE";
+          controlBtn.className = "control-button save";
+          controlBtn.onclick = saveGroups;
+        } else if (row === 2) {
+          controlBtn.textContent = "RESET";
+          controlBtn.className = "control-button reset";
+          controlBtn.onclick = reset;
+        } else {
+          grid.appendChild(document.createElement("div"));
+          row++;
+          continue;
+        }
+
+        grid.appendChild(controlBtn);
+        row++;
+      }
+    }
+
+    function getRandom(arr, count) {
+      const copy = [...arr];
+      const result = [];
+      while (result.length < count && copy.length) {
+        const idx = Math.floor(Math.random() * copy.length);
+        result.push(copy[idx]);
+        copy.splice(idx, 1);  
+      }
+      return result;
+    }
+
+    async function startRandom() {
+      clearAllBorders();
+      selectedButtons.clear();
+
+      const targets = {};
+      for (const [group, btns] of Object.entries(groupElements)) {
+        targets[group] = getRandom(btns, 2);
+        targets[group].forEach(btn => selectedButtons.add(btn));
+      }
+
+      const indexes = { group1: 0, group2: 0, group3: 0, group4: 0 };
+      const start = Date.now();
+
+      while (Date.now() - start < 5000) {
+        clearAllBorders();
+        for (const group in groupElements) {
+          const btns = groupElements[group];
+          const idx = indexes[group];
+          btns[idx].classList.add('border-highlight');
+          indexes[group] = (idx + 1) % btns.length;
+        }
+
+        tickSound.currentTime = 0;
+        tickSound.play();
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      clearAllBorders();
+      selectedButtons.forEach(btn => btn.classList.add("border-final"));
+    }
+
+    function clearAllBorders() {
+      document.querySelectorAll(".option").forEach(btn => {
+        btn.classList.remove("border-highlight", "border-final");
+      });
+    }
+
+    function saveGroups() {
+      if (selectedButtons.size === 0) {
+        alert("ยังไม่มีข้อมูลสุ่ม กรุณากดปุ่มสุ่มก่อน");
+        return;
+      }
+
+      for (const [group, btns] of Object.entries(groupElements)) {
+        const names = btns
+          .filter(btn => selectedButtons.has(btn))
+          .map(btn => btn.textContent);
+        downloadFile(`${group}.txt`, names.join(" , "));
+      }
+    }
+
+    function downloadFile(filename, content) {
+      const blob = new Blob([content], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    }
+
+    function reset() {
+      clearAllBorders();
+      selectedButtons.clear();
+    }
+
+    createUI();
+  </script>
+
+  <footer>
+    Produced by Roi Et Technical College.
+  </footer>
+</body>
+</html>

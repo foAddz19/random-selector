@@ -130,7 +130,6 @@
     }
 
     .random { background-color: #4f46e5; }
-    .save   { background-color: #10b981; }
     .reset  { background-color: #ec4899; }
 
     footer {
@@ -192,26 +191,25 @@
           grid.appendChild(dummy);
         }
 
-        const controlBtn = document.createElement("button");
+        let controlBtn = null;
         if (row === 0) {
+          controlBtn = document.createElement("button");
           controlBtn.textContent = "RANDOM";
           controlBtn.className = "control-button random";
           controlBtn.onclick = startRandom;
         } else if (row === 1) {
-          controlBtn.textContent = "SAVE";
-          controlBtn.className = "control-button save";
-          controlBtn.onclick = saveGroups;
-        } else if (row === 2) {
+          controlBtn = document.createElement("button");
           controlBtn.textContent = "RESET";
           controlBtn.className = "control-button reset";
           controlBtn.onclick = reset;
-        } else {
-          grid.appendChild(document.createElement("div"));
-          row++;
-          continue;
         }
 
-        grid.appendChild(controlBtn);
+        if (controlBtn) {
+          grid.appendChild(controlBtn);
+        } else {
+          grid.appendChild(document.createElement("div"));
+        }
+
         row++;
       }
     }
@@ -222,7 +220,7 @@
       while (result.length < count && copy.length) {
         const idx = Math.floor(Math.random() * copy.length);
         result.push(copy[idx]);
-        copy.splice(idx, 1);
+        copy.splice(idx, 1);  
       }
       return result;
     }
@@ -262,28 +260,6 @@
       document.querySelectorAll(".option").forEach(btn => {
         btn.classList.remove("border-highlight", "border-final");
       });
-    }
-
-    function saveGroups() {
-      if (selectedButtons.size === 0) {
-        alert("ยังไม่มีข้อมูลสุ่ม กรุณากดปุ่มสุ่มก่อน");
-        return;
-      }
-
-      for (const [group, btns] of Object.entries(groupElements)) {
-        const names = btns
-          .filter(btn => selectedButtons.has(btn))
-          .map(btn => btn.textContent);
-        downloadFile(`${group}.txt`, names.join(" , "));
-      }
-    }
-
-    function downloadFile(filename, content) {
-      const blob = new Blob([content], { type: "text/plain" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      a.click();
     }
 
     function reset() {
